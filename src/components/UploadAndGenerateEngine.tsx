@@ -134,9 +134,13 @@ export const UploadAndGenerateEngine: React.FC<UploadAndGenerateEngineProps> = (
     }
   };
 
-  const handleRunAIEngine = async (contentOverride?: string, documentIdOverride?: string) => {
-    const contentToGenerate = contentOverride?.trim() || activeContent;
-    if (!contentToGenerate || contentToGenerate.length < 20) {
+  const handleRunAIEngine = async (contentOverride?: string | unknown, documentIdOverride?: string) => {
+    const contentToGenerate = typeof contentOverride === 'string'
+      ? contentOverride
+      : activeContent;
+    const normalizedContent = contentToGenerate.trim();
+
+    if (!normalizedContent || normalizedContent.length < 20) {
       setGenerationError('Please select a manual or provide training content to generate MCQs.');
       return;
     }
@@ -150,7 +154,7 @@ export const UploadAndGenerateEngine: React.FC<UploadAndGenerateEngineProps> = (
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: contentToGenerate,
+          content: normalizedContent,
           competency: targetCompetency,
           count: questionCount,
           difficulty,
